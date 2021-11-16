@@ -4,16 +4,14 @@ name: deploy
 on:
   # Triggers the workflow on contentful publish new post
   repository_dispatch:
-    types: [publish-event]
+    types: 
 
-  # Allows to run this workflow manually
   workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-18.04
     steps:
-      # Getting node.js and cache yarn and stuff
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
@@ -21,13 +19,12 @@ jobs:
           cache: 'yarn'
           cache-dependency-path: '**/yarn.lock'
 
-      # Installing dependecies with yarn
       - name: Install dependecies
         run: |
           echo Installing things...
           yarn install --prefer-offline
           echo Instalation finished
-      # Task to build and deploy project to Netlify
+
       - name: build-deploy
         env:
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
@@ -39,7 +36,5 @@ jobs:
           export CONTENTFUL_SPACE_ID=$CONTENTFUL_SPACE_ID
           export CONTENTFUL_ACCESS_TOKEN=$CONTENTFUL_ACCESS_TOKEN
           yarn build
-          echo Building finished
-          echo Deploying to netlify...
           npx netlify-cli deploy --site "$NETLIFY_SITE_ID" --auth "$NETLIFY_AUTH_TOKEN" --prod
-          echo Deploying finished! Now you the website has the new contentful post!
+          
