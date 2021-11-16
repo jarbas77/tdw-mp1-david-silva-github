@@ -21,16 +21,5 @@ jobs:
           yarn install --prefer-offline
           echo Instalation finished
 
-      - name: build-deploy
-        env:
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          CONTENTFUL_SPACE_ID: ${{ secrets.CONTENTFUL_SPACE_ID }}
-          CONTENTFUL_ACCESS_TOKEN: ${{ secrets.CONTENTFUL_ACCESS_TOKEN }}
-        run: |
-          echo Building...
-          export CONTENTFUL_SPACE_ID=$CONTENTFUL_SPACE_ID
-          export CONTENTFUL_ACCESS_TOKEN=$CONTENTFUL_ACCESS_TOKEN
-          yarn build
-          npx netlify-cli deploy --site "$NETLIFY_SITE_ID" --auth "$NETLIFY_AUTH_TOKEN" --prod
+
           
