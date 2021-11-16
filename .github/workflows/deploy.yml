@@ -9,18 +9,39 @@ on:
   workflow_dispatch:
 
 jobs:
-  publish:
-    runs-on: ubuntu-latest
-
+  deploy:
+    runs-on: ubuntu-18.04
     steps:
-    - uses: actions/checkout@master
-
-    - name: Publish
-      uses: netlify/actions/cli@master
-      with:
-        args: deploy --dir=site --functions=functions
-      env:
-        NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-        NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+      
+      - name: Install dependecies
+        run: |
+          echo Installing things...
+          yarn install --prefer-offline
+          echo Instalation finished
+      - name: build-deploy
+        if: contains( github.ref, 'main')
+        env:
+          CONTENTFUL_SPACE_ID: ${{ secrets.CONTENTFUL_SPACE_ID }}
+          CONTENTFUL_ACCESS_TOKEN: ${{ secrets.CONTENTFUL_ACCESS_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          
+        run: |
+          echo Building...
+          export CONTENTFUL_SPACE_ID=$CONTENTFUL_SPACE_ID
+          export CONTENTFUL_ACCESS_TOKEN=$CONTENTFUL_ACCESS_TOKEN
+          yarn build
+          echo Building finished
+          echo Deploying to netlify...
+          npx netlify-cli deploy --site "$NETLIFY_SITE_ID" --auth "$NETLIFY_AUTH_TOKEN" --prod
+          echo Deploying finished! Now the website has the new contentful post
+          export CONTENTFUL_SPACE_ID=$CONTENTFUL_SPACE_ID
+          export CONTENTFUL_ACCESS_TOKEN=$CONTENTFUL_ACCESS_TOKEN
+          yarn build
+          echo Building finished
+          echo Deploying to netlify...
+          npx netlify-cli deploy --site "$NETLIFY_SITE_ID" --auth "$NETLIFY_AUTH_TOKEN" --prod
+        
           
